@@ -1,9 +1,9 @@
 var http = require('http');
-var url = require('url');
+var path = require('path');
 var Router = require('./router');
+var middleware = require('./middleware');
 
-
-function Connector() {
+function Connector(root) {
     var self = this;
 
     this._paths = {
@@ -12,21 +12,21 @@ function Connector() {
         controllers: null
     };
 
+    this._root = root;
     this._controllersCache = {};
-    this._middleware = [];
+    this._middleware = middleware(this);
     this._router = new Router();
 
     this._server = http.createServer(function(req, res) {
         self._middleware.forEach(function(func) {
             func(req, res);
         });
-        req.url = url.parse(req.url, true);
         self.emit(req.url.pathname, req, res);
     });
 }
 
 Connector.prototype.set = function(key, value) {
-    this._paths[key] = value;
+    this._paths[key] = path.join(this._root, value);
 };
 
 Connector.prototype.get = function(key) {

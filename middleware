@@ -1,0 +1,15 @@
+var url = require('url');
+var ResponseMixin = require('./mixins/response-mixin');
+
+module.exports = function(connector) {
+    function parseUrl(req) {
+        req.url = url.parse(req.url, true);
+    }
+
+    var responseMixin = new ResponseMixin(connector);
+    function mixinResponse(req, res) {
+        responseMixin.mix(res);
+    }
+
+    return [parseUrl, mixinResponse];
+};
