@@ -1,4 +1,5 @@
 var fs = require('fs');
+var path = require('path');
 
 var mimeTypes = {
     css: 'text/css',
@@ -8,14 +9,16 @@ var mimeTypes = {
 };
 
 module.exports = function(connector) {
+    var STATIC_PATTERN = /\/static\/(.+\.(.+))/;
+
     return function staticProvider(req, res) {
         var staticPath = connector.get('static');
-        var path = req.url.pathname;
+        var matches = req.url.pathname.match(STATIC_PATTERN);
 
-        if (path.indexOf('/static') === 0) {
-            path = path.replace('/static/', '');
-            var ext = path.match(/\.(.+)/)[1];
-            fs.readFile(staticPath + path, function(err, file) {
+        if (matches) {
+            var filePath = matches[1];
+            var ext = matches[2];
+            fs.readFile(path.join(staticPath, filePath), function(err, file) {
                 if (err) {
                     res.writeHead(500, {'Content-Type': 'text/plane'});
                     res.end(err.toString());
