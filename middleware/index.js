@@ -1,6 +1,7 @@
 var url = require('url');
 var mixins = require('./mixins');
 var staticProvider = require('./static-provider');
+var logger = require('./logger');
 
 module.exports = function(connector) {
     function parseUrl(req, res, next) {
@@ -8,5 +9,5 @@ module.exports = function(connector) {
         next();
     }
 
-    return [parseUrl, staticProvider(connector), mixins(connector)];
+    return [parseUrl, logger(), staticProvider(connector), mixins(connector)];
 };
