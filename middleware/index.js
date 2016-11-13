@@ -9,5 +9,5 @@ module.exports = function(connector) {
         next();
     }
 
-    return [parseUrl, logger(), staticProvider(connector), mixins(connector)];
+    return [parseUrl, logger(), mixins(connector), staticProvider(connector)];
 };

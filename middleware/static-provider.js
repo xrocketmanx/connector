@@ -20,8 +20,7 @@ module.exports = function(connector) {
             var ext = matches[2];
             fs.readFile(path.join(staticPath, filePath), function(err, file) {
                 if (err) {
-                    res.writeHead(500, {'Content-Type': 'text/plane'});
-                    res.end(err.toString());
+                    res.error(500, err.toString());
                 } else {
                     res.writeHead(200, {'Content-Type': mimeTypes[ext]});
                     res.end(file);

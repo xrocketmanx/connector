@@ -23,14 +23,16 @@ function Router() {
         return matches;
     };
 
-    this.each = function(controllers, callback) {
+    this.each = function(controllers, onNext, onEnd) {
         var i = -1;
         next();
         
         function next() {
             i++;
             if (i < controllers.length) {
-                callback(controllers[i], next);
+                onNext(controllers[i], next);
+            } else {
+                if (onEnd) onEnd();
             }
         }
     };

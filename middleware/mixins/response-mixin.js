@@ -5,14 +5,18 @@ var Mixin = require('./mixin');
 function ResponseMixin(connector) {
     Mixin.apply(this, arguments);
 
+    this.error = function(code, message) {
+        this.writeHead(code, {'Content-Type': 'text/plain'});
+        this.end(message);
+    };
+
     this.render = function(name, data) {
         var self = this;
         ejs.renderFile(path.join(connector.get('views'), name) + '.ejs', data, {
             cache: true
         }, function(err, html) {
             if (err) {
-                self.writeHead(500, {'Content-Type': 'text/plain'});
-                self.end(err.toString());
+                self.error(500, err.toString());
             } else {
                 self.writeHead(200, {'Content-Type': 'text/html'});
                 self.end(html);

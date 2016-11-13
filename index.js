@@ -20,8 +20,9 @@ function Connector(root) {
     this._server = http.createServer(function(req, res) {
         self._router.each(self._middleware, function(func, next) {
             func(req, res, next);
+        }, function() {
+            self.emit(req.url.pathname, req, res);
         });
-        self.emit(req.url.pathname, req, res);
     });
 }
 
@@ -51,7 +52,10 @@ Connector.prototype.emit = function(path, req, res) {
     this._router.each(controllers, function(controller, next) {
         var method = req.method.toLowerCase();
         controller[method](req, res, next);
+    }, function() {
+        res.error(404, 'cannot get: ' + req.url.path);
     });
+
 };
 
 Connector.prototype.listen = function(port, callback) {
