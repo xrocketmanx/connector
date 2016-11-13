@@ -22,6 +22,18 @@ function Router() {
         }
         return matches;
     };
+
+    this.each = function(controllers, callback) {
+        var i = -1;
+        next();
+        
+        function next() {
+            i++;
+            if (i < controllers.length) {
+                callback(controllers[i], next);
+            }
+        }
+    };
 }
 
 module.exports = Router;

@@ -11,7 +11,7 @@ var mimeTypes = {
 module.exports = function(connector) {
     var STATIC_PATTERN = /\/static\/(.+\.(.+))/;
 
-    return function staticProvider(req, res) {
+    return function staticProvider(req, res, next) {
         var staticPath = connector.get('static');
         var matches = req.url.pathname.match(STATIC_PATTERN);
 
@@ -27,6 +27,8 @@ module.exports = function(connector) {
                     res.end(file);
                 }
             });
+        } else {
+            next();
         }
     }
 };

@@ -18,8 +18,8 @@ function Connector(root) {
     this._router = new Router();
 
     this._server = http.createServer(function(req, res) {
-        self._middleware.forEach(function(func) {
-            func(req, res);
+        self._router.each(self._middleware, function(func, next) {
+            func(req, res, next);
         });
         self.emit(req.url.pathname, req, res);
     });
@@ -48,9 +48,9 @@ Connector.prototype.on = function(path, controllerName) {
 
 Connector.prototype.emit = function(path, req, res) {
     var controllers = this._router.get(path);
-    controllers.forEach(function(controller) {
+    this._router.each(controllers, function(controller, next) {
         var method = req.method.toLowerCase();
-        controller[method](req, res);
+        controller[method](req, res, next);
     });
 };
 
