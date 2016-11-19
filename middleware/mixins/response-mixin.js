@@ -6,8 +6,8 @@ function ResponseMixin(connector) {
     Mixin.apply(this, arguments);
 
     this.error = function(code, message) {
-        this.writeHead(code, {'Content-Type': 'text/plain'});
-        this.end(message);
+        this.writeHead(code, {'Content-Type': 'text/html'});
+        this.end('<h1>404</h1>' + message);
     };
 
     this.render = function(name, data) {
