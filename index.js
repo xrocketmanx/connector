@@ -48,14 +48,22 @@ Connector.prototype.on = function(path, controllerName) {
 };
 
 Connector.prototype.emit = function(path, req, res) {
-    var controllers = this._router.get(path);
-    this._router.each(controllers, function(controller, next) {
-        var method = req.method.toLowerCase();
-        controller[method](req, res, next);
-    }, function() {
-        res.error(404, 'cannot get: ' + req.url.path);
-    });
+    var self = this;
+    var routes = this._router.get(path);
+    var method = req.method.toLowerCase();
 
+    self._router.each(routes, function(route, nextRoute) {
+        req.params = route.params;
+        req.routeName = route.name;
+
+        self._router.each(route.controllers, function(controller, nextController) {
+            controller[method](req, res, nextController);
+        }, function() {
+            nextRoute();
+        });
+    }, function() {
+        res.error(404, 'page not found: ' + req.url.path);
+    });
 };
 
 Connector.prototype.listen = function(port, callback) {
