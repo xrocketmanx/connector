@@ -121,13 +121,10 @@ Model.prototype.parent = function(options) {
     var dbName = getDbName(options.name) + '_id';
     this._propsNames[dbName] = options.name;
 
-    var parent = null;
     Object.defineProperty(this, options.name, {
         get: function() {
             return new Promise(function(done) {
-                if (parent) {
-                    done(parent);
-                } else if (self._props[dbName] !== undefined) {
+                if (self._props[dbName] !== undefined) {
                     return Class.get({id: self._props[dbName]}).then(function(models, done) {
                         parent = models[0];
                         done(models[0]);
@@ -138,12 +135,7 @@ Model.prototype.parent = function(options) {
             });
         },
         set: function(value) {
-            if (typeof value === 'object') {
-                parent = value;
-                this._props[dbName] = value.id;
-            } else {
-                this._props[dbName] = +value;
-            }
+            this._props[dbName] = value === 'object' ? value.id : +value;
         }
     });
 };
