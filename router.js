@@ -26,20 +26,6 @@ function Router() {
         }
         return matchedRoutes;
     };
-
-    this.each = function(controllers, onNext, onEnd) {
-        var i = -1;
-        next();
-        
-        function next() {
-            i++;
-            if (i < controllers.length) {
-                onNext(controllers[i], next);
-            } else {
-                if (onEnd) onEnd();
-            }
-        }
-    };
     
     function parseRoute(route) {
         var PARAMS_PATTERN = /:(\w+)/g;
