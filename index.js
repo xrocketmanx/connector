@@ -2,6 +2,7 @@ var http = require('http');
 var path = require('path');
 var Router = require('./router');
 var middleware = require('./middleware');
+var Promise = require('./utils/promise');
 
 function Connector(root) {
     var self = this;
@@ -18,13 +19,15 @@ function Connector(root) {
     this._router = new Router();
 
     this._server = http.createServer(function(req, res) {
-        self._router.each(self._middleware, function(func, next) {
+        Promise.each(self._middleware, function(func, next) {
             func(req, res, next);
         }, function() {
             self.emit(req.url.pathname, req, res);
         });
     });
 }
+
+Connector.Model = require('./model');
 
 Connector.prototype.set = function(key, value) {
     this._paths[key] = path.join(this._root, value);
@@ -52,11 +55,11 @@ Connector.prototype.emit = function(path, req, res) {
     var routes = this._router.get(path);
     var method = req.method.toLowerCase();
 
-    self._router.each(routes, function(route, nextRoute) {
+    Promise.each(routes, function(route, nextRoute) {
         req.params = route.params;
         req.routeName = route.name;
 
-        self._router.each(route.controllers, function(controller, nextController) {
+        Promise.each(route.controllers, function(controller, nextController) {
             controller[method](req, res, nextController);
         }, function() {
             nextRoute();
