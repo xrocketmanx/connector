@@ -21,7 +21,14 @@ Promise.prototype.end = function(callback) {
         i++;
         if (i < self.funcs.length) {
             var args = Array.prototype.slice.call(arguments).concat(done, error);
-            self.funcs[i].apply(null, args);
+            var res = self.funcs[i].apply(null, args);
+            if (res instanceof Promise) {
+                res.error(function() {
+                    error.apply(null, arguments);
+                }).end(function() {
+                    done.apply(null, arguments);
+                });
+            }
         } else {
             if (callback) callback.apply(null, arguments);
         }
@@ -42,6 +49,23 @@ Promise.each = function(collection, onNext, onEnd) {
             onNext(collection[i], next);
         } else {
             if (onEnd) onEnd();
+        }
+    }
+};
+
+Promise.parallel = function(collection, onNext, onEnd) {
+    var num = 0;
+    for (var i = 0; i < collection.length; i++) {
+        var res = onNext(collection[i], done);
+        if (res instanceof Promise) {
+            res.end(done);
+        }
+    }
+
+    function done() {
+        num++;
+        if (num === collection.length) {
+            onEnd();
         }
     }
 };
