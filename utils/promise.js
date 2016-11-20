@@ -30,7 +30,14 @@ Promise.prototype.end = function(callback) {
                 });
             }
         } else {
-            if (callback) callback.apply(null, arguments);
+            if (callback) {
+                var res = callback.apply(null, arguments);
+                if (res instanceof Promise) {
+                    res.error(function() {
+                        error.apply(null, arguments);
+                    }).end();
+                }
+            }
         }
     }
 

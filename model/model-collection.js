@@ -4,6 +4,10 @@ var db = require('./db').getInstance();
 function ModelCollection(Class, array) {
     array = array.map(createModel.bind(null, Class));
 
+    array.each = function(func, onEnd) {
+        Promise.each(array, func, onEnd);
+    };
+
     array.save = function() {
         db.connect();
         return new Promise(function(done) {
@@ -39,10 +43,8 @@ function ModelCollection(Class, array) {
                 });
             });
         } else if (typeof filter === 'object') {
-            return new Promise(function() {
-                return Class.delete(filter).then(function() {
-                    return Class.get();
-                });
+            return Class.delete(filter).then(function() {
+                return Class.get();
             });
         }
     };

@@ -71,10 +71,11 @@ Model.setConfig = function(config) {
 
 Model.prototype.field = function(options) {
     var type = options.type || 'string';
-    var dbName = options.name.replace(/([A-Z])/g, '_$1').toLowerCase();
+    var dbName = getDbName(options.name);
     this._propsNames[dbName] = options.name;
 
     Object.defineProperty(this, options.name, {
+        enumerable: true,
         get: function() {
             return this._props[dbName];
         },
@@ -94,6 +95,60 @@ Model.prototype.field = function(options) {
     this[options.name] = options.value;
 };
 
+Model.prototype.children = function(options) {
+    var self = this;
+    var Class = options.class;
+    var foreignName = getDbName(options.foreign) + '_id';
+    Object.defineProperty(this, options.descriptor, {
+        get: function() {
+            if (self.id !== null) {
+                var filter = {};
+                filter[foreignName] = self.id;
+                return Class.get(filter);
+            } else {
+                return new Promise(function(done) {
+                    done(null);
+                });
+            }
+        }
+    });
+};
+
+//TODO: Remake something
+Model.prototype.parent = function(options) {
+    var self = this;
+    var Class = options.class;
+    var dbName = getDbName(options.name) + '_id';
+    this._propsNames[dbName] = options.name;
+
+    var parent = null;
+    Object.defineProperty(this, options.name, {
+        get: function() {
+            return new Promise(function(done) {
+                if (parent) {
+                    done(parent);
+                } else if (self._props[dbName] !== undefined) {
+                    return Class.get({id: self._props[dbName]}).then(function(models, done) {
+                        parent = models[0];
+                        done(models[0]);
+                    });
+                } else {
+                    done(null);
+                }
+            });
+        },
+        set: function(value) {
+            if (typeof value === 'object') {
+                parent = value;
+                this._props[dbName] = value.id;
+            } else {
+                this._props[dbName] = +value;
+            }
+        }
+    });
+};
+
+//TODO: Trigger all collections
 Model.prototype.save = function(keepcon) {
     var self = this;
     if (!keepcon) db.connect();
@@ -114,12 +169,12 @@ Model.prototype.save = function(keepcon) {
             });
         });
     } else {
-        return new Promise(function(done) {
+        return new Promise(function(done, error) {
             db.update({
                 table: self._TABLE,
                 values: self._props,
                 where: {id: self.id}
-            }, function(error) {
+            }, function(err) {
                 if (!keepcon) db.close();
                 if (err) {
                     error(err);
@@ -148,5 +203,9 @@ Model.prototype.delete = function(keepcon) {
         });
     });
 };
+
+function getDbName(name) {
+    return name.replace(/([A-Z])/g, '_$1').toLowerCase();
+}
 
 module.exports = Model;
