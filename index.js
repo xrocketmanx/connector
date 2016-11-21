@@ -51,7 +51,6 @@ Connector.prototype.on = function(path, controllerName) {
 };
 
 Connector.prototype.emit = function(path, req, res) {
-    var self = this;
     var routes = this._router.get(path);
     var method = req.method.toLowerCase();
 
@@ -60,7 +59,11 @@ Connector.prototype.emit = function(path, req, res) {
         req.routeName = route.name;
 
         Promise.each(route.controllers, function(controller, nextController) {
-            controller[method](req, res, nextController);
+            if (controller[method]) {
+                controller[method](req, res, nextController);
+            } else {
+                nextController();
+            }
         }, function() {
             nextRoute();
         });
