@@ -135,7 +135,7 @@ Model.prototype.parent = function(options) {
             });
         },
         set: function(value) {
-            this._props[dbName] = value === 'object' ? value.id : +value;
+            this._props[dbName] = typeof value === 'object' ? +value.id : +value;
         }
     });
 };
