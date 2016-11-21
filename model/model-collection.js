@@ -9,28 +9,28 @@ function ModelCollection(Class, array) {
     };
 
     array.save = function() {
-        db.connect();
         return new Promise(function(done) {
+            db.connect();
             Promise.parallel(array, function(model) {
                 return model.save(true);
             }, function() {
-                db.close();
                 done(array);
             });
+            db.close();
         });
     };
 
     array.add = function() {
         var args = arguments;
-        db.connect();
         return new Promise(function(done) {
+            db.connect();
             Promise.parallel(args, function(model) {
                 return model.save(true);
             }, function() {
-                db.close();
                 array.push.apply(array, args);
                 done(array);
             });
+            db.close();
         });
     };
 

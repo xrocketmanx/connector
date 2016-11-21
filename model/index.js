@@ -13,14 +13,13 @@ Model.extend = function(Class) {
     Class.prototype.constructor = Class;
 
     Class.get = function(filter, sort) {
-        db.connect();
         return new Promise(function(done, error) {
+            db.connect();
             db.select({
                 table: Class.prototype._TABLE,
                 where: filter,
                 order: sort
             }, function(err, rows) {
-                db.close();
                 if (err) {
                     error(err);
                 } else {
@@ -28,37 +27,38 @@ Model.extend = function(Class) {
                     done(collection);
                 }
             });
+            db.close();
         });
     };
 
     Class.delete = function(filter) {
-        db.connect();
         return new Promise(function(done, error) {
+            db.connect();
             db.delete({
                 table: Class.prototype._TABLE,
                 where: filter
             }, function(err) {
-                db.close();
                 if (err) {
                     error(err);
                 } else {
                     done();
                 }
             });
+            db.close();
         });
     };
 
     Class.count = function() {
-        db.connect();
         return new Promise(function(done, error) {
+            db.connect();
             db.count(Class.prototype._TABLE, function(err, row) {
-                db.close();
                 if (err) {
                     error(err);
                 } else {
                     done(row.count);
                 }
             });
+            db.close();
         });
     };
 };
@@ -143,15 +143,14 @@ Model.prototype.parent = function(options) {
 //TODO: Trigger all collections
 Model.prototype.save = function(keepcon) {
     var self = this;
-    if (!keepcon) db.connect();
 
     if (this.id === null) {
         return new Promise(function(done, error) {
+            if (!keepcon) db.connect();
             db.insert({
                 table: self._TABLE,
                 values: self._props
             }, function(err, id) {
-                if (!keepcon) db.close();
                 if (err) {
                     error(err);
                 } else {
@@ -159,40 +158,42 @@ Model.prototype.save = function(keepcon) {
                     done(self);
                 }
             });
+            if (!keepcon) db.close();
         });
     } else {
         return new Promise(function(done, error) {
+            if (!keepcon) db.connect();
             db.update({
                 table: self._TABLE,
                 values: self._props,
                 where: {id: self.id}
             }, function(err) {
-                if (!keepcon) db.close();
                 if (err) {
                     error(err);
                 } else {
                     done(self);
                 }
-            }); 
+            });
+            if (!keepcon) db.close();
         });
     }
 };
 
 Model.prototype.delete = function(keepcon) {
     var self = this;
-    if (!keepcon) db.connect();
     return new Promise(function(done, error) {
+        if (!keepcon) db.connect();
         db.delete({
             table: self._TABLE,
             where: {id: self.id}
         }, function(err) {
-            if (!keepcon) db.close();
             if (err) {
                 error(err);
             } else {
                 done();
             }
         });
+        if (!keepcon) db.close();
     });
 };
 
