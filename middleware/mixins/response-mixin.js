@@ -23,6 +23,12 @@ function ResponseMixin(connector) {
             }
         });
     };
+
+    this.sendJSON = function(data) {
+        var result = JSON.stringify(data);
+        this.writeHead(200, {'Content-Type': 'application/json'});
+        this.end(result);
+    };
 }
 
 ResponseMixin.prototype = Object.create(Mixin.prototype);
