@@ -8,6 +8,22 @@ function ModelCollection(Class, array) {
         Promise.each(array, func, onEnd);
     };
 
+    array.load = function(collections) {
+        return new Promise(function(done) {
+            Promise.parallel(array, function(model, nextModel) {
+                Promise.parallel(collections, function(collection, nextCollection) {
+                    model[collection].load().end(function() {
+                        nextCollection();
+                    });
+                }, function() {
+                    nextModel();
+                });
+            }, function() {
+                done(array);
+            });
+        });
+    };
+
     array.save = function() {
         return new Promise(function(done) {
             db.connect();

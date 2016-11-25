@@ -11,20 +11,32 @@ function Model() {
 Model.extend = function(Class) {
     Class.prototype = Object.create(Model.prototype);
     Class.prototype.constructor = Class;
+    Class.prototype._TABLE = Class.name.toLowerCase();
 
-    Class.get = function(filter, sort) {
+    Class.setTable = function(tableName) {
+        Class.prototype._TABLE = tableName;
+    };
+
+    Class.get = function(options) { // filter, sort, load
+        options = options || {};
         return new Promise(function(done, error) {
             db.connect();
             db.select({
                 table: Class.prototype._TABLE,
-                where: filter,
-                order: sort
+                where: options.filter,
+                order: options.sort
             }, function(err, rows) {
                 if (err) {
                     error(err);
                 } else {
                     var collection = ModelCollection(Class, rows);
-                    done(collection);
+                    if (options.load) {
+                        collection.load(options.load).end(function() {
+                            done(collection)
+                        });
+                    } else {
+                        done(collection);
+                    }
                 }
             });
             db.close();
@@ -85,7 +97,7 @@ Model.prototype.field = function(options) {
             } else if (type === 'number') {
                 this._props[dbName] = +value;
             } else if (type === 'date') {
-                this._props[dbName] = new Date(value);
+                this._props[dbName] = (new Date(value)).getTime();
             } else if (type === 'string') {
                 this._props[dbName] = value;
             }
@@ -99,17 +111,39 @@ Model.prototype.children = function(options) {
     var self = this;
     var Class = options.class;
     var foreignName = getDbName(options.foreign) + '_id';
+    var models = ModelCollection(Class, []);
+
+    models.load = function() {
+        if (self.id !== null) {
+            var filter = {};
+            filter[foreignName] = self.id;
+            return Class.get({filter: filter}).then(function(children, done) {
+                //TODO: Create collection for childrean instead copy
+                children.forEach(function(child) {
+                    child[options.foreign] = self;
+                });
+                models.length = 0;
+                models.push.apply(models, children);
+                done(self);
+            });
+        } else {
+            return new Promise(function(done) {
+                done(self);
+            });
+        }
+    };
+
+    var oldAdd = models.add;
+    models.add = function() {
+        for (var i = 0; i < arguments.length; i++) {
+            arguments[i].parent = self;
+        }
+        return oldAdd.apply(this, arguments);
+    };
+
     Object.defineProperty(this, options.descriptor, {
         get: function() {
-            if (self.id !== null) {
-                var filter = {};
-                filter[foreignName] = self.id;
-                return Class.get(filter);
-            } else {
-                return new Promise(function(done) {
-                    done(null);
-                });
-            }
+            return models;
         }
     });
 };
@@ -121,21 +155,33 @@ Model.prototype.parent = function(options) {
     var dbName = getDbName(options.name) + '_id';
     this._propsNames[dbName] = options.name;
 
-    Object.defineProperty(this, options.name, {
-        get: function() {
+    var parent = {
+        model: null,
+        load: function() {
             return new Promise(function(done) {
                 if (self._props[dbName] !== undefined) {
-                    return Class.get({id: self._props[dbName]}).then(function(models, done) {
-                        parent = models[0];
-                        done(models[0]);
+                    return Class.get({filter: {id: self._props[dbName]}}).then(function(models, done) {
+                        parent.model = models[0];
+                        done(self);
                     });
                 } else {
-                    done(null);
+                    done(self);
                 }
             });
+        }
+    };
+    Object.defineProperty(this, options.name, {
+        get: function() {
+            return parent;
         },
         set: function(value) {
-            this._props[dbName] = typeof value === 'object' ? +value.id : +value;
+            if (typeof value === 'object') {
+                this._props[dbName] = +value.id;
+                parent.model = value;
+            } else {
+                this._props[dbName] = +value;
+                parent.model = {id: +value};
+            }
         }
     });
 };
