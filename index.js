@@ -4,6 +4,12 @@ var Router = require('./router');
 var middleware = require('./middleware');
 var Promise = require('./utils/promise');
 
+Connector.Model = require('./model');
+
+Connector.setDBConfig = function(config) {
+    this.Model.setConfig(config);
+};
+
 function Connector(root) {
     var self = this;
 
@@ -26,8 +32,6 @@ function Connector(root) {
         });
     });
 }
-
-Connector.Model = require('./model');
 
 Connector.prototype.set = function(key, value) {
     this._paths[key] = path.join(this._root, value);
