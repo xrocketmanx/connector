@@ -7,7 +7,7 @@ function ResponseMixin(connector) {
 
     this.error = function(code, message) {
         this.writeHead(code, {'Content-Type': 'text/html'});
-        this.end('<h1>404</h1>' + message);
+        this.end('<h1>' + code + '</h1>' + message);
     };
 
     this.render = function(name, data) {
@@ -28,6 +28,11 @@ function ResponseMixin(connector) {
         var result = JSON.stringify(data);
         this.writeHead(200, {'Content-Type': 'application/json'});
         this.end(result);
+    };
+
+    this.redirect = function(path) {
+        this.writeHead(302, {'Location': path});
+        this.end();
     };
 }
 
