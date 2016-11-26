@@ -3,8 +3,6 @@ var path = require('path');
 var Mixin = require('./mixin');
 
 function ResponseMixin(connector) {
-    Mixin.apply(this, arguments);
-
     this.error = function(code, message) {
         this.writeHead(code, {'Content-Type': 'text/html'});
         this.end('<h1>' + code + '</h1>' + message);

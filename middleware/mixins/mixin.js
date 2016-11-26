@@ -1,6 +1,4 @@
-function Mixin(connector) {
-    this.connector = connector;
-}
+function Mixin() {}
 
 Mixin.prototype.mix = function(obj) {
     for (var key in this) {
