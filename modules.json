@@ -1,0 +1,9 @@
+{
+  "DB": "db",
+  "Promise": "utils/promise",
+  "Model": "model",
+  "ModelCollection": "model/model-collection",
+  "Connector": "connector",
+  "Router": "router",
+  "middleware": "middleware"
+}
