@@ -7,9 +7,9 @@ function Injector(dir, config) {
         return modules[moduleName];
     };
 
-    this.extendLibrary = function(modules) {
-        for (var i in modules) {
-            modules[i] = modules[i];
+    this.extendLibrary = function(_modules) {
+        for (var i in _modules) {
+            modules[i] = _modules[i];
         }
     };
 

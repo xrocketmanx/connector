@@ -1,6 +1,4 @@
-module.exports = function(DB, Promise, ModelCollection) {
-    var db = DB.getInstance();
-
+module.exports = function(db, Promise, ModelCollection) {
     function Model() {
         this._props = Object.create(null);
         this._propsNames = Object.create(null);
@@ -72,10 +70,6 @@ module.exports = function(DB, Promise, ModelCollection) {
                 db.close();
             });
         };
-    };
-
-    Model.setConfig = function(config) {
-        DB.setConfig(config);
     };
 
     /*MODEL PROTO METHODS*/

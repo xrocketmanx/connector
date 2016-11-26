@@ -2,12 +2,6 @@ var http = require('http');
 var path = require('path');
 
 module.exports = function(Model, Promise, Router, middleware) {
-    Connector.Model = Model;
-
-    Connector.setDBConfig = function(config) {
-        this.Model.setConfig(config);
-    };
-
     function Connector(root) {
         var self = this;
 
@@ -30,6 +24,8 @@ module.exports = function(Model, Promise, Router, middleware) {
             });
         });
     }
+
+    Connector.prototype.Model = Model;
 
     Connector.prototype.set = function(key, value) {
         this._paths[key] = path.join(this._root, value);

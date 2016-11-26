@@ -1,6 +1,15 @@
 var Injector = require('./injector');
+var DB = require('./db');
 
-var injector = new Injector(__dirname, require('./modules.json'));
-injector.load();
+module.exports = function(options) {
 
-module.exports = injector.get('Connector');
+    var injector = new Injector(__dirname, require('./modules.json'));
+
+    injector.extendLibrary({
+        db: new DB(options.db)
+    });
+
+    injector.load();
+
+    return injector.get('Connector');
+};

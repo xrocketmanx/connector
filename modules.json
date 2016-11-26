@@ -1,5 +1,4 @@
 {
-  "DB": "db",
   "Promise": "utils/promise",
   "Model": "model",
   "ModelCollection": "model/model-collection",

@@ -1,6 +1,4 @@
-module.exports = function(DB, Promise) {
-    var db = DB.getInstance();
-
+module.exports = function(db, Promise) {
     function ModelCollection(Class, array) {
         array = array.map(createModel.bind(null, Class));
 

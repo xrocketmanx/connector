@@ -66,10 +66,4 @@ module.exports.setConfig = function(_config) {
     }
 };
 
-var dbController = null;
-module.exports.getInstance = function() {
-    if (!dbController) {
-        dbController = new DBController(config);
-    }
-    return dbController;
-};
+module.exports = DBController;
