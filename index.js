@@ -5,7 +5,7 @@ module.exports = function(options) {
 
     var injector = new Injector(__dirname, require('./modules.json'));
 
-    injector.extendLibrary({
+    injector.addModules({
         db: new DB(options.db)
     });
 
