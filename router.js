@@ -1,6 +1,16 @@
+/**
+ * Matches controllers by path
+ * and parses it`s params
+ * @constructor
+ */
 function Router() {
     var routes = {};
 
+    /**
+     * Sets controller to be matched by route
+     * @param {string} route regexp string
+     * @param {Object} controller
+     */
     this.set = function(route, controller) {
         if (!routes[route]) {
             routes[route] = {
@@ -11,6 +21,13 @@ function Router() {
         routes[route].controllers.push(controller);
     };
 
+    /**
+     * Gets controllers associated with path
+     * and parsed path params
+     * @param {string} path
+     * @returns {Array} array of objects
+     * with keys - controllers, params, key
+     */
     this.get = function(path) {
         var matchedRoutes = [];
         for (var key in routes) {
