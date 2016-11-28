@@ -47,9 +47,3 @@ function Injector(dir, config) {
 }
 
 module.exports = Injector;
-
-/*
-Config: {
-    Name: path
-}
- */
