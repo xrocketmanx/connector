@@ -57,13 +57,4 @@ DBController.prototype.count = function(table, callback) {
     this.db.get(statement.toString(), callback);
 };
 
-var config = null;
-module.exports.setConfig = function(_config) {
-    if (dbController) {
-        dbController.config = _config;
-    } else {
-        config = _config;
-    }
-};
-
 module.exports = DBController;
