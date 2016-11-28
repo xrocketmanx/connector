@@ -60,7 +60,7 @@ describe('Promise', function() {
 
             it('should handle async functions', function(done) {
                 new Promise(function(done) {
-                    setTimeout(done, 500);
+                    setTimeout(done, 50);
                 }).end(done);
             });
 
